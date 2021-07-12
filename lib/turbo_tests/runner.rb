@@ -77,9 +77,14 @@ module TurboTests
 
       setup_tmp_dir
 
+      seed = rand(0xFFFF).to_s
+
       subprocess_opts = {
-        record_runtime: use_runtime_info
+        record_runtime: use_runtime_info,
+        seed: seed
       }
+
+      puts "Using #{seed} as seed for all runners"
 
       report_number_of_tests(tests_in_groups)
 
@@ -117,7 +122,7 @@ module TurboTests
       )
     end
 
-    def start_subprocess(env, extra_args, tests, process_id, record_runtime:)
+    def start_subprocess(env, extra_args, tests, process_id, record_runtime:, seed:)
       if tests.empty?
         @messages << {
           type: "exit",
@@ -147,7 +152,7 @@ module TurboTests
         command = [
           ENV["BUNDLE_BIN_PATH"], "exec", "rspec",
           *extra_args,
-          "--seed", rand(0xFFFF).to_s,
+          "--seed", seed,
           "--format", "TurboTests::JsonRowsFormatter",
           "--out", tmp_filename,
           *record_runtime_options,
